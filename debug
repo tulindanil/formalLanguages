@@ -1,0 +1,1 @@
+cat "tests/t"$1".txt" | python script.py -o
