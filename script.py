@@ -70,7 +70,6 @@ def mergeStar(item):
 
     t.ch = '(' + item.ch + ')'  + '*'
 
-
     if item.ispattern == True and item.length > 0:
         handleInf()
 
