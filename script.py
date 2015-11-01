@@ -1,3 +1,4 @@
+# coding=UTF-8
 import sys
 
 letters = ['a', 'b', 'c', '1']
@@ -8,11 +9,12 @@ ans = 0
 
 class term:
 
-    prefix = 0
-    suffix = 0
-    length = 0
+    prefix = 0 #длина префикса вида a^*
+    suffix = 0 #длина суффикса вида a^*
+    length = 0 #длина слова (имеет слова при ispattern = true)
+    ispattern = False #true, если слово вида a^*. Иначе - false
 
-    ispattern = False
+# Геттеры, чтобы удобно описать объект класса при вызове print term
 
     def getPattern(self):
         return self.ispattern
@@ -26,11 +28,10 @@ class term:
     def getSuffix(self):
         return self.suffix
 
-    ch = ''
+    ch = '' #Регулярное выражение, которое соответствует объекту класса
 
     def __init__(self):
-        self.skippable = False
-        self.items = [('preffix', self.getPrefix), ('length', self.getLength), ('suffix', self.getSuffix), ('ispattern', self.getPattern)]
+        self.items = [('prefix', self.getPrefix), ('length', self.getLength), ('suffix', self.getSuffix), ('ispattern', self.getPattern)]
 
     def __repr__(self):
         return self.__str__() 
@@ -46,6 +47,7 @@ class term:
 
         return string
 
+# преобразует символ в объект класса term
 def compile(item):
 
     t = term()
@@ -70,16 +72,17 @@ def mergeStar(item):
 
     t.ch = '(' + item.ch + ')'  + '*'
 
-    if item.ispattern == True and item.length > 0:
+    if item.ispattern == True and item.length > 0: #если к слову вида a^+ применить * то значит будет бесконечность 
         handleInf()
 
-    t.ispattern = True
+    t.ispattern = True #Слово может иметь вид a^0 
     t.length = 0
 
     t.prefix = item.prefix
     t.suffix = item.suffix
 
-    ans = max(ans, t.suffix + t.prefix)
+    ans = max(ans, t.suffix + t.prefix) #нас интересует длина подслова из a на стыке если мы размножаем звуздочку больше
+                                        #одного раза
 
     return t
 
@@ -87,9 +90,12 @@ def mergePlus(item1, item2):
 
     t = term()
 
+#мы можем взять любой из двух термов, на которые действует
+#оператор
+
     t.prefix = max(item1.prefix, item2.prefix)
     t.suffix = max(item1.suffix, item2.suffix)
-    t.ispattern = item1.ispattern or item2.ispattern
+    t.ispattern = item1.ispattern or item2.ispattern  
     
     if item1.ispattern == True:
         t.length = item1.length
@@ -113,13 +119,16 @@ def mergeConcat(l, r):
     t.length = l.length + r.length
     t.ispattern = l.ispattern and r.ispattern
 
+#разбор случая вида (b+c)*a* . a*
     if r.ispattern == True:
         t.suffix = max(t.suffix, l.suffix + r.length)
 
+#разбор случая вида a* . a*(b+c)*
     if l.ispattern == True:
         t.prefix = max(t.prefix, l.length + r.prefix)
 
     ans = max(ans, l.suffix + r.prefix)
+
     if t.ispattern == True:
         ans = max(ans, t.length)
 
@@ -162,17 +171,25 @@ if __name__ == '__main__':
     letters = [x for x in letters if not x == symbol]
     stack = []
 
-    for sym in pattern:
-        if output == True:
-            print stack
-        proceed(stack, sym)
+    try:
+        for sym in pattern:
+            if output == True:
+                print stack
+            proceed(stack, sym)
+    except Exception as e:
+        print 'Error'
+        sys.exit(1)
 
     if output == True:
         print stack
 
     if len(stack) == 1: 
         item = stack[0]
+        ans = max(ans, item.prefix, item.suffix)
+        if item.ispattern == True:
+            ans = max(ans, item.length)
         print ans
     else:
-        print -1
+        print 'Error'
+        
 
