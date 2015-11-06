@@ -47,8 +47,7 @@ class term:
 
         return string
 
-# преобразует символ в объект класса term
-def compile(item):
+def compile(item): # преобразует символ в объект класса term
 
     t = term()
 
@@ -73,7 +72,7 @@ def mergeStar(item):
     t.ch = '(' + item.ch + ')'  + '*'
 
     if item.ispattern == True and item.length > 0: #если к слову вида a^+ применить * то значит будет бесконечность 
-        handleInf()
+        ans = sys.maxint
 
     t.ispattern = True #Слово может иметь вид a^0 
     t.length = 0
@@ -155,10 +154,6 @@ def proceed(stack, symbol):
     else:
         proceedLiteral(stack, symbol)
 
-def handleInf():
-    print 'INF'
-    sys.exit(0)
-
 if __name__ == '__main__':
 
     output = False
@@ -183,7 +178,10 @@ if __name__ == '__main__':
     if output == True:
         print stack
 
-    if len(stack) == 1: 
+    if len(stack) == 1:
+        if ans == sys.maxint:
+            print 'INF'
+            sys.exit(0)
         item = stack[0]
         ans = max(ans, item.prefix, item.suffix)
         if item.ispattern == True:
