@@ -168,6 +168,8 @@ if __name__ == '__main__':
 
     try:
         for sym in pattern:
+            if not sym in letters + [symbol] + binary + unary:
+                raise Exception()
             if output == True:
                 print stack
             proceed(stack, sym)
